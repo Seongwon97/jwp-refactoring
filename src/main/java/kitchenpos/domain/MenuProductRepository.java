@@ -1,11 +1,14 @@
-package kitchenpos.dao;
-
-import kitchenpos.domain.MenuProduct;
+package kitchenpos.domain;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface MenuProductDao {
+import org.springframework.data.repository.Repository;
+
+import kitchenpos.domain.MenuProduct;
+
+public interface MenuProductRepository extends Repository<MenuProduct, Long> {
+
     MenuProduct save(MenuProduct entity);
 
     Optional<MenuProduct> findById(Long id);

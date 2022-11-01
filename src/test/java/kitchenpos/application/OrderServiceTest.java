@@ -30,7 +30,6 @@ import kitchenpos.application.dto.response.OrderResponse;
 import kitchenpos.fixture.MenuFixture;
 import kitchenpos.fixture.MenuGroupFixture;
 import kitchenpos.fixture.ProductFixture;
-import kitchenpos.repository.OrderRepository;
 import kitchenpos.support.SpringBootNestedTest;
 
 @SuppressWarnings("NonAsciiCharacters")

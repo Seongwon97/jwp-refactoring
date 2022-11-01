@@ -9,15 +9,11 @@ public class OrderTableResponse {
     private final int numberOfGuests;
     private final boolean empty;
 
-    public OrderTableResponse(Long id, Long tableGroupId, int numberOfGuests, boolean empty) {
-        this.id = id;
-        this.tableGroupId = tableGroupId;
-        this.numberOfGuests = numberOfGuests;
-        this.empty = empty;
-    }
-
     public OrderTableResponse(OrderTable orderTable) {
-        this(orderTable.getId(), orderTable.getTableGroupId(), orderTable.getNumberOfGuests(), orderTable.isEmpty());
+        this.id = orderTable.getId();
+        this.tableGroupId = orderTable.getTableGroup().getId();
+        this.numberOfGuests = orderTable.getNumberOfGuests();
+        this.empty = orderTable.isEmpty();
     }
 
     public Long getId() {

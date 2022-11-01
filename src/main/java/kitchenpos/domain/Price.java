@@ -3,9 +3,17 @@ package kitchenpos.domain;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class Price {
 
-    private final BigDecimal value;
+    @Column(name = "price")
+    private BigDecimal value;
+
+    protected Price() {
+    }
 
     public Price(BigDecimal value) {
         validatePrice(value);
@@ -18,7 +26,7 @@ public class Price {
         }
     }
 
-    public BigDecimal getValue() {
+    public BigDecimal value() {
         return value;
     }
 

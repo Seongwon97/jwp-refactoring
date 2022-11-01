@@ -21,11 +21,19 @@ public class MenuRequest {
         this.menuProducts = menuProducts;
     }
 
-    public Menu toMenu() {
-        List<MenuProduct> products = menuProducts.stream()
-                .map(MenuProductRequest::toMenuProduct)
-                .collect(Collectors.toList());
+    public String getName() {
+        return name;
+    }
 
-        return new Menu(name, price, menuGroupId, products);
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public Long getMenuGroupId() {
+        return menuGroupId;
+    }
+
+    public List<MenuProductRequest> getMenuProducts() {
+        return menuProducts;
     }
 }

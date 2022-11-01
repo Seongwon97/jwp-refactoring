@@ -11,37 +11,38 @@ import org.springframework.util.CollectionUtils;
 
 import kitchenpos.application.dto.request.TableGroupRequest;
 import kitchenpos.application.dto.response.TableGroupResponse;
-import kitchenpos.dao.OrderDao;
-import kitchenpos.dao.OrderTableDao;
-import kitchenpos.dao.TableGroupDao;
+import kitchenpos.domain.OrderRepository;
 import kitchenpos.domain.OrderStatus;
 import kitchenpos.domain.OrderTable;
+import kitchenpos.domain.OrderTableRepository;
 import kitchenpos.domain.TableGroup;
+import kitchenpos.domain.TableGroupRepository;
 
 @Service
 @Transactional
 public class TableGroupService {
 
-    private final OrderDao orderDao;
-    private final OrderTableDao orderTableDao;
-    private final TableGroupDao tableGroupDao;
+    private final OrderRepository orderRepository;
+    private final OrderTableRepository orderTableRepository;
+    private final TableGroupRepository tableGroupRepository;
 
-    public TableGroupService(OrderDao orderDao, OrderTableDao orderTableDao, TableGroupDao tableGroupDao) {
-        this.orderDao = orderDao;
-        this.orderTableDao = orderTableDao;
-        this.tableGroupDao = tableGroupDao;
+    public TableGroupService(OrderRepository orderRepository, OrderTableRepository orderTableRepository,
+                             TableGroupRepository tableGroupRepository) {
+        this.orderRepository = orderRepository;
+        this.orderTableRepository = orderTableRepository;
+        this.tableGroupRepository = tableGroupRepository;
     }
 
     public TableGroupResponse create(TableGroupRequest request) {
         List<Long> orderTableIds = request.getOrderTableIds();
         validateOrderTableSize(orderTableIds);
 
-        List<OrderTable> savedOrderTables = orderTableDao.findAllByIdIn(orderTableIds);
+        List<OrderTable> savedOrderTables = orderTableRepository.findAllByIdIn(orderTableIds);
         validateOrderTableSize(orderTableIds, savedOrderTables);
         validateOrderTableIsNotEmpty(savedOrderTables);
 
         TableGroup tableGroup = request.toTableGroup();
-        TableGroup savedTableGroup = tableGroupDao.save(tableGroup);
+        TableGroup savedTableGroup = tableGroupRepository.save(tableGroup);
         groupOrderTables(savedOrderTables, savedTableGroup);
 
         return new TableGroupResponse(savedTableGroup);
@@ -58,7 +59,7 @@ public class TableGroupService {
         for (OrderTable savedOrderTable : savedOrderTables) {
             savedOrderTable.joinTableGroup(tableGroupId);
             savedOrderTable.changeEmptyStatus(false);
-            orderTableDao.save(savedOrderTable);
+            orderTableRepository.save(savedOrderTable);
         }
         savedTableGroup.addOrderTables(savedOrderTables);
     }
@@ -74,14 +75,14 @@ public class TableGroupService {
             if (!savedOrderTable.isEmpty()) {
                 throw new IllegalArgumentException("테이블이 비어있지 않습니다.");
             }
-            if (Objects.nonNull(savedOrderTable.getTableGroupId())) {
+            if (Objects.nonNull(savedOrderTable.getTableGroup())) {
                 throw new IllegalArgumentException("이미 테이블 그룹이 형성된 테이블입니다.");
             }
         }
     }
 
     public void ungroup(Long tableGroupId) {
-        List<OrderTable> orderTables = orderTableDao.findAllByTableGroupId(tableGroupId);
+        List<OrderTable> orderTables = orderTableRepository.findAllByTableGroupId(tableGroupId);
 
         List<Long> orderTableIds = getOrderTableIds(orderTables);
         validateIsPossibleToUngroup(orderTableIds);
@@ -96,7 +97,7 @@ public class TableGroupService {
     }
 
     private void validateIsPossibleToUngroup(List<Long> orderTableIds) {
-        if (orderDao.existsByOrderTableIdInAndOrderStatusIn(
+        if (orderRepository.existsByOrderTableIdInAndOrderStatusIn(
                 orderTableIds, Arrays.asList(OrderStatus.COOKING.name(), OrderStatus.MEAL.name()))) {
             throw new IllegalArgumentException("그룹 해제를 할 수 없는 테이블이 존재합니다.");
         }
@@ -106,7 +107,7 @@ public class TableGroupService {
         for (OrderTable orderTable : orderTables) {
             orderTable.leaveTableGroup();
             orderTable.changeEmptyStatus(false);
-            orderTableDao.save(orderTable);
+            orderTableRepository.save(orderTable);
         }
     }
 }
